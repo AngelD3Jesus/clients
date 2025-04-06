@@ -1,0 +1,43 @@
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# Logs
+*.log
+
+# IDEs
+# VS Code
+.vscode/
+# IntelliJ
+.idea/
+*.iml
+# Eclipse
+.classpath
+.project
+.settings/
+.apt_generated/
+.factorypath/
+.springBeans/
+.sts4-cache/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build directories
+build/
+out/
+
+# Test reports
+/test-output/
+
+# Environment files (si tienes variables de entorno locales)
+.env
+
+# Backup files
+*.bak
+*.swp
+*.swo
+
+# Node (por si algún microservicio usa frontend con Node.js)
+node_modules/
