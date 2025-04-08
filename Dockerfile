@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 5001
 
 # Comando para iniciar la app
-CMD ["node", "src/index.js"]
+CMD ["node", "index.js"]
