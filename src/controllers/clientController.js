@@ -11,9 +11,7 @@ export const getClient = async (req, res) => {
     });
     res.status(200).json(clients);
   } catch (error) {
-    console.error("🔥 ERROR DETECTADO EN getClient:");
-    console.error("🧠 Mensaje:", error.message);
-    console.error("🪵 Detalle completo:", error);
+    console.error("🔥 ERROR DETECTADO EN getClient:", error);
     res.status(500).json({ message: "Error al listar clientes" });
   }
 };
@@ -29,17 +27,14 @@ export const createClient = async (req, res) => {
     direccion,
   } = req.body;
 
-  const token = req.headers.authorization;
-
-  if (!token) {
-    return res.status(401).json({ message: "Token no proporcionado" });
-  }
-
-  if (!nombre || !apellido_paterno || !apellido_materno || !correo || !telefono || !fecha_nacimiento || !direccion) {
+  if (
+    !nombre || !apellido_paterno || !apellido_materno ||
+    !correo || !telefono || !fecha_nacimiento || !direccion
+  ) {
     return res.status(400).json({ message: "Todos los campos son obligatorios." });
   }
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
   if (!emailRegex.test(correo)) {
     return res.status(400).json({ message: "Correo electrónico no válido." });
   }
@@ -55,8 +50,7 @@ export const createClient = async (req, res) => {
   }
 
   try {
-    const existingClient = await Client.findOne({ where: { correo } });
-
+    const existingClient = await Client.findOne({ where: { [Op.or]: [{ correo }] } });
     if (existingClient) {
       return res.status(400).json({ message: "El cliente ya existe con el mismo correo o teléfono." });
     }
@@ -73,36 +67,35 @@ export const createClient = async (req, res) => {
     });
 
     try {
-      const response = await axios.get(
-        `https://users-production-8ab1.up.railway.app/app/users/${correo}`,
-        { headers: { Authorization: token } }
+      const existingUser = await axios.get(
+        `https://users-production-8ab1.up.railway.app/app/users/${correo}`
       );
 
-      if (!response.data) {
+      if (existingUser.data) {
+        console.log("El usuario ya existe en el servicio de usuarios.");
+      } else {
         await axios.post(
-          `https://users-production-8ab1.up.railway.app/app/users/create`,
+          "https://users-production-8ab1.up.railway.app/app/users/create",
           {
             username: correo,
             password: "123456789",
             phone: telefono,
-          },
-          { headers: { Authorization: token } }
+          }
         );
       }
     } catch (userError) {
       if (userError.response && userError.response.status === 404) {
         try {
           await axios.post(
-            `https://users-production-8ab1.up.railway.app/app/users/create`,
+            "https://users-production-8ab1.up.railway.app/app/users/create",
             {
               username: correo,
               password: "123456789",
               phone: telefono,
-            },
-            { headers: { Authorization: token } }
+            }
           );
-        } catch (createErr) {
-          console.error("Error al crear usuario:", createErr);
+        } catch (createError) {
+          console.error("Error al crear usuario:", createError);
           return res.status(500).json({
             message: "Cliente creado, pero hubo un error al registrar el usuario.",
           });
@@ -117,9 +110,7 @@ export const createClient = async (req, res) => {
 
     res.status(201).json(client);
   } catch (error) {
-    console.error("🔥 ERROR DETECTADO EN createClient:");
-    console.error("🧠 Mensaje:", error.message);
-    console.error("🪵 Detalle completo:", error);
+    console.error("Error al crear cliente:", error);
     res.status(500).json({ message: "Error al crear cliente" });
   }
 };
@@ -163,7 +154,6 @@ export const updateClient = async (req, res) => {
     };
 
     await client.update(updatedClientData);
-
     res.status(200).json(client);
   } catch (error) {
     console.error("Error al actualizar cliente:", error);
@@ -181,7 +171,6 @@ export const deleteClient = async (req, res) => {
     }
 
     await client.update({ estatus: false });
-
     return res.status(200).json({ message: "Usuario eliminado correctamente" });
   } catch (error) {
     console.error("Error al eliminar usuario:", error);
