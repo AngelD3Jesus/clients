@@ -11,8 +11,10 @@ export const getClient = async (req, res) => {
     });
     res.status(200).json(clients);
   } catch (error) {
-    console.error("Error al listar clientes:", error);
-    res.status(500).json({ message: "Error al listar clientes" });
+    console.error("🔥 ERROR DETECTADO EN createClient:");
+  console.error("🧠 Mensaje:", error.message);
+  console.error("🪵 Detalle completo:", error); // Esto imprime todo, incluidos errores de Sequelize o Axios
+  res.status(500).json({ message: "Error al crear cliente" });
   }
 };
 
