@@ -93,27 +93,27 @@ export const createClient = async (req, res) => {
     try {
       // Verificar si el usuario ya existe
       const existingUser = await axios.get(
-        `http://localhost:5001/app/users/${correo}`
-      );
+        `https://users-production-8ab1.up.railway.app/app/users/${correo}`
+      );      
       if (existingUser.data) {
         console.log("El usuario ya existe en el servicio de usuarios.");
       } else {
         // Crear el usuario si no existe
-        await axios.post("http://localhost:5001/app/users/create", {
+        await axios.post("https://users-production-8ab1.up.railway.app/app/users/create", {
           username: correo,
           password: "123456789",
           phone: telefono,
-        });
+        });        
       }
     } catch (userError) {
       if (userError.response && userError.response.status === 404) {
         // Si el usuario no existe, crearlo
         try {
-          await axios.post("http://localhost:5001/app/users/create", {
+          await axios.post("https://users-production-8ab1.up.railway.app/app/users/create", {
             username: correo,
             password: "123456789",
             phone: telefono,
-          });
+          });          
         } catch (createError) {
           console.error("Error al crear usuario:", createError);
           return res.status(500).json({
